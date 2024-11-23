@@ -1,0 +1,25 @@
+Name,TaskType,Priority,Effort,ParallelFactor,Dependencies,NeedsFE,NeedsQA
+API Authentication,Backend,1,8.0,2,,false,false
+Middlewares,Backend,1,4.0,1,,false,true
+Server Configuration,Backend,1,2.0,1,"API Authentication,Middlewares",false,false
+Server Deployment,Backend,1,10.0,1,"API Authentication,Middlewares,Server Configuration",false,false
+Payment Integration,Backend,1,7.0,2,"API Implementation",true,true
+User Interface Design,Frontend,2,6.0,2,,false,false
+Security Audit,Security,2,7.0,1,"API Authentication,API Implementation",false,false
+Search Functionality,Backend,2,6.0,2,"API Implementation,Database Schema Design",true,true
+Mobile Responsiveness,Frontend,2,4.0,1,,false,false
+Error Monitoring,DevOps,2,3.0,1,"Production Deployment",false,false
+Data Migration,Backend,2,5.0,2,"Database Schema Design",false,false
+Email Service,Backend,2,3.0,1,"API Implementation",false,true
+Load Balancing,DevOps,2,4.0,1,"Server Deployment",false,false
+API Implementation,Backend,3,12.0,3,"API Authentication,Database Schema Design",false,true
+Analytics Integration,Frontend,3,5.0,2,,false,false
+Caching Layer,Backend,3,4.0,2,"API Implementation",false,true
+Admin Dashboard,Frontend,3,8.0,2,,false,false
+API Documentation,Support,3,4.0,1,"API Implementation",false,false
+Documentation,Support,4,4.0,2,"API Implementation",false,false
+Integration Testing,QA,5,6.0,2,"API Implementation",false,false
+Performance Testing,QA,3,5.0,2,"API Implementation",false,false
+User Acceptance Testing,QA,5,8.0,3,"Integration Testing",false,false
+Production Deployment,DevOps,1,3.0,1,"Server Deployment,Integration Testing,Security Audit",false,false
+Database Schema Design,Backend,1,4.0,1,,false,false

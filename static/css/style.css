@@ -1,0 +1,14 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#timeline {
+    margin-top: 20px;
+    height: 600px;
+}
+
+form {
+    margin: 20px 0;
+} 

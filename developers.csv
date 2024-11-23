@@ -1,0 +1,12 @@
+Name,Role,TaskTypes
+Dev1,Senior,"Backend,Frontend"
+Dev2,Senior,"Backend,QA"
+Dev3,Mid,"Frontend,QA"
+Dev4,Junior,"Frontend,Backend"
+Dev5,Senior,"Backend,QA"
+Dev6,Senior,"Frontend,DevOps"
+Dev7,Mid,"Backend,Security"
+Dev8,Junior,"Frontend,QA"
+Dev9,Senior,"Backend,DevOps"
+Dev10,Mid,"Frontend,Backend"
+Dev11,Mid,"DevOps,Support"

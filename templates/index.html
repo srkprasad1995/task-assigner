@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Viewer</title>
+    <script src="https://unpkg.com/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <link href="https://unpkg.com/vis-timeline@7.7.2/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #uploadForm {
+            width: 300px;
+            margin: 0 auto 20px auto;
+            padding: 15px;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .file-input {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-label {
+            width: 80px;
+            text-align: right;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #controls {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        #timeline {
+            margin-top: 20px;
+            height: 800px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+
+        .vis-item.task {
+            border-color: #2196F3;
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .vis-item.oncall {
+            border-color: #FF9800;
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .vis-item.leave {
+            border-color: #F44336;
+            background-color: #F44336;
+            color: white;
+        }
+
+        .vis-item.vis-selected {
+            border-color: #FF4081;
+            background-color: #FF4081;
+        }
+
+        .vis-nested-group {
+            background-color: rgba(233, 88, 148, 0.1);
+        }
+
+        .vis-time-axis .vis-grid.vis-saturday,
+        .vis-time-axis .vis-grid.vis-sunday {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .vis-item .vis-item-content {
+            white-space: normal !important;
+            padding: 5px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.2;
+        }
+
+        .vis-item {
+            min-height: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Timeline Viewer</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="file-input">
+                <span class="file-label">Roles:</span>
+                <input type="file" name="roles.csv" accept=".csv" required>
+            </div>
+            <div class="file-input">
+                <span class="file-label">Tasks:</span>
+                <input type="file" name="tasks.csv" accept=".csv" required>
+            </div>
+            <div class="file-input">
+                <span class="file-label">Developers:</span>
+                <input type="file" name="developers.csv" accept=".csv" required>
+            </div>
+            <div class="file-input">
+                <span class="file-label">Oncalls:</span>
+                <input type="file" name="oncalls.csv" accept=".csv" required>
+            </div>
+            <div class="file-input">
+                <span class="file-label">Leaves:</span>
+                <input type="file" name="leaves.csv" accept=".csv" required>
+            </div>
+            <button type="submit">Upload and Process</button>
+        </form>
+        <div id="controls">
+            <button onclick="groupByDevelopers()">Group by Developers</button>
+            <button onclick="groupByTasks()">Group by Tasks</button>
+            <button onclick="downloadTimelineCSV()">Download Timeline CSV</button>
+        </div>
+        <div id="timeline"></div>
+    </div>
+
+    <script>
+        const container = document.getElementById('timeline');
+        const options = {
+            height: '800px',
+            stack: false,
+            showMajorLabels: true,
+            showCurrentTime: true,
+            zoomable: true,
+            horizontalScroll: true,
+            verticalScroll: true,
+            orientation: 'top',
+            timeAxis: { scale: 'day', step: 1 },
+            format: {
+                minorLabels: {
+                    minute: 'h:mma',
+                    hour: 'ha'
+                }
+            },
+            groupOrder: 'content',
+            groupTemplate: function(group) {
+                const hasSubgroups = group.subgroupOrder !== undefined;
+                return `<div style="display: flex; justify-content: space-between; width: 100%;">
+                    <span>${group.content}</span>
+                    ${hasSubgroups ? '<span style="margin-right: 5px;">▼</span>' : ''}
+                </div>`;
+            }
+        };
+
+        let timeline;
+        let currentData = null;
+
+        // Initialize timeline with empty dataset
+        timeline = new vis.Timeline(container, new vis.DataSet([]), options);
+
+        function downloadTimelineCSV() {
+            if (!currentData) {
+                alert('No timeline data available. Please upload files first.');
+                return;
+            }
+
+            // Create CSV content
+            let csvContent = 'Task,Start Date,End Date,Assigned Developers,Type\n';
+            
+            currentData.forEach(item => {
+                const startDate = new Date(item.start).toISOString().split('T')[0];
+                const endDate = new Date(item.end).toISOString().split('T')[0];
+                
+                let taskName = '';
+                let developer = '';
+                let type = '';
+                
+                if (item.content.startsWith('Task:')) {
+                    const match = item.content.match(/Task: (.*?) \(Assigned to: (.*?)\)/);
+                    if (match) {
+                        taskName = match[1];
+                        developer = match[2];
+                        type = 'Task';
+                    }
+                } else if (item.content.startsWith('On-call:')) {
+                    taskName = 'On-Call Duty';
+                    developer = item.content.split(':')[1].trim();
+                    type = 'OnCall';
+                } else if (item.content.startsWith('Leave:')) {
+                    taskName = 'Leave';
+                    developer = item.content.split(':')[1].trim();
+                    type = 'Leave';
+                }
+                
+                csvContent += `${taskName},${startDate},${endDate},${developer},${type}\n`;
+            });
+
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, 'timeline.csv');
+            } else {
+                link.href = URL.createObjectURL(blob);
+                link.download = 'timeline.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function groupByDevelopers() {
+            if (!currentData) return;
+            
+            const groups = new vis.DataSet();
+            const items = new vis.DataSet();
+            
+            // Create developer groups first
+            const devGroups = new Set();
+            currentData.forEach(item => {
+                const devName = item.content.includes('Assigned to:') ? 
+                    item.content.split('Assigned to: ')[1].replace(')', '') : 
+                    item.content.split(':')[1]?.trim();
+                
+                if (devName && !devGroups.has(devName)) {
+                    devGroups.add(devName);
+                    groups.add({
+                        id: devName,
+                        content: devName
+                    });
+                }
+            });
+
+            // Add items under developer groups
+            currentData.forEach(item => {
+                const devName = item.content.includes('Assigned to:') ? 
+                    item.content.split('Assigned to: ')[1].replace(')', '') : 
+                    item.content.split(':')[1]?.trim();
+                
+                const category = item.content.split(':')[0];
+                const className = category.toLowerCase().includes('task') ? 'task' : 
+                                category.toLowerCase().includes('oncall') ? 'oncall' : 'leave';
+
+                items.add({
+                    id: item.id,
+                    content: item.content,
+                    start: item.start,
+                    end: item.end,
+                    type: 'range',
+                    group: devName,
+                    className: className
+                });
+            });
+
+            timeline.setGroups(groups);
+            timeline.setItems(items);
+        }
+
+        function groupByTasks() {
+            if (!currentData) return;
+            
+            const groups = new vis.DataSet();
+            const items = new vis.DataSet();
+            
+            currentData.forEach(item => {
+                const taskMatch = item.content.match(/Task: (.*?) \(Assigned to: (.*?)\)/);
+                const isTask = item.content.startsWith('Task:');
+                
+                if (isTask && taskMatch) {
+                    const taskName = taskMatch[1];
+                    const devName = taskMatch[2];
+                    
+                    if (!groups.get(taskName)) {
+                        groups.add({
+                            id: taskName,
+                            content: taskName,
+                            nestedGroups: []
+                        });
+                    }
+                    
+                    const devGroupId = `${taskName}_${devName}`;
+                    if (!groups.get(devGroupId)) {
+                        groups.add({
+                            id: devGroupId,
+                            content: devName,
+                            className: 'nested-group'
+                        });
+                        
+                        const parentGroup = groups.get(taskName);
+                        parentGroup.nestedGroups.push(devGroupId);
+                        groups.update(parentGroup);
+                    }
+                    
+                    items.add({
+                        id: item.id,
+                        content: devName,
+                        start: item.start,
+                        end: item.end,
+                        type: 'range',
+                        group: devGroupId,
+                        className: 'task'
+                    });
+                } else {
+                    const category = item.content.split(':')[0];
+                    if (!groups.get(category)) {
+                        groups.add({
+                            id: category,
+                            content: category
+                        });
+                    }
+                    
+                    const className = category.toLowerCase().trim();
+                    
+                    items.add({
+                        id: item.id,
+                        content: item.content,
+                        start: item.start,
+                        end: item.end,
+                        type: 'range',
+                        group: category,
+                        className: className
+                    });
+                }
+            });
+
+            timeline.setGroups(groups);
+            timeline.setItems(items);
+        }
+
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Upload failed');
+                }
+
+                currentData = await response.json();
+                groupByTasks(); // Default grouping
+                timeline.fit();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'Failed to process files. Please try again.');
+            }
+        });
+
+        // Handle group expand/collapse
+        timeline.on('doubleClick', function(properties) {
+            if (properties.what === 'group-label') {
+                const group = groups.get(properties.group);
+                if (group.nestedGroups) {
+                    group.showNested = !group.showNested;
+                    group.nestedGroups.forEach(nestedId => {
+                        const nestedGroup = groups.get(nestedId);
+                        nestedGroup.visible = group.showNested;
+                        groups.update(nestedGroup);
+                    });
+                    groups.update(group);
+                }
+            }
+        });
+
+        // Optional: Add click handler for items
+        timeline.on('select', function(properties) {
+            if (properties.items.length) {
+                const selectedId = properties.items[0];
+                console.log('Selected item:', selectedId);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+Task,Start Date,End Date,Assigned Developers,Effort Per Developer
+On-Call Duty,2024-11-23,2024-11-30,Dev1,7.00
+On-Call Duty,2024-11-30,2024-12-07,Dev2,7.00
+On-Call Duty,2024-12-07,2024-12-14,Dev3,7.00
+On-Call Duty,2024-12-14,2024-12-21,Dev4,7.00
+On-Call Duty,2024-12-21,2024-12-28,Dev5,7.00
+On-Call Duty,2024-12-28,2025-01-04,Dev6,7.00
+On-Call Duty,2025-01-04,2025-01-11,Dev7,7.00
+On-Call Duty,2025-01-11,2025-01-18,Dev8,7.00
+On-Call Duty,2025-01-18,2025-01-25,Dev9,7.00
+On-Call Duty,2025-01-25,2025-02-01,Dev10,7.00
+Leave,2024-11-26,2024-11-30,Dev3,4.00
+Leave,2024-12-03,2024-12-08,Dev4,5.00
+Leave,2024-12-20,2024-12-27,Dev1,7.00
+Leave,2024-12-24,2024-12-31,Dev6,7.00
+Leave,2025-01-02,2025-01-06,Dev8,4.00
+Leave,2025-01-15,2025-01-19,Dev2,4.00
+Leave,2025-01-22,2025-01-26,Dev5,4.00
+Leave,2025-02-01,2025-02-05,Dev9,4.00
+Leave,2025-02-12,2025-02-16,Dev7,4.00
+Leave,2025-02-20,2025-02-24,Dev10,4.00
+API Authentication,2024-11-23,2024-12-10,Dev2,17.00
+API Authentication,2024-11-23,2024-12-10,Dev4,17.00
+Middlewares,2024-11-23,2024-12-04,Dev5,11.00
+Middlewares_QA,2024-12-04,2024-12-06,Dev5,2.00
+Server Configuration,2024-12-10,2024-12-13,Dev2,3.00
+Server Deployment,2024-12-13,2025-01-15,Dev1,33.00
+Payment Integration,2024-12-24,2024-12-31,Dev4,7.00
+Payment Integration,2024-12-24,2024-12-31,Dev7,7.00
+Payment Integration_Frontend,2024-12-31,2025-01-03,Dev3,3.00
+Payment Integration_QA,2025-01-03,2025-01-08,Dev3,5.00
+Database Schema Design,2024-11-23,2024-12-03,Dev7,10.00
+Production Deployment,2025-01-24,2025-02-03,Dev6,10.00
+Email Service,2024-12-24,2025-01-01,Dev9,8.00
+Search Functionality_Frontend,2025-01-02,2025-01-03,Dev4,1.00
+Search Functionality_QA,2025-01-06,2025-01-08,Dev2,2.00
+Mobile Responsiveness,2024-11-23,2024-12-16,Dev3,23.00
+Error Monitoring,2025-02-03,2025-02-11,Dev6,8.00
+Data Migration,2024-12-03,2024-12-09,Dev7,6.00
+Data Migration,2024-12-03,2024-12-09,Dev9,6.00
+Search Functionality,2024-12-24,2025-01-01,Dev10,8.00
+Search Functionality,2024-12-30,2025-01-01,Dev2,2.00
+Email Service_QA,2025-01-01,2025-01-02,Dev2,1.00
+Load Balancing,2025-01-15,2025-01-24,Dev6,9.00
+User Interface Design,2024-11-23,2024-12-02,Dev8,9.00
+User Interface Design,2024-11-23,2024-12-02,Dev6,9.00
+Security Audit,2024-12-31,2025-01-23,Dev7,23.00
+Analytics Integration,2024-11-23,2024-12-02,Dev10,9.00
+Analytics Integration,2024-12-02,2024-12-02,Dev1,0.00
+Caching Layer,2024-12-30,2025-01-02,Dev5,3.00
+Caching Layer,2024-12-31,2025-01-02,Dev4,2.00
+Caching Layer_QA,2025-01-02,2025-01-06,Dev2,4.00
+Admin Dashboard,2024-12-02,2024-12-12,Dev1,10.00
+Admin Dashboard,2024-12-02,2024-12-12,Dev6,10.00
+API Documentation,2024-12-31,2025-01-08,Dev11,8.00
+Performance Testing,2024-12-24,2024-12-31,Dev8,7.00
+Performance Testing,2024-12-30,2024-12-31,Dev3,1.00
+API Implementation_QA,2024-12-31,2025-01-08,Dev8,8.00
+API Implementation,2024-12-10,2024-12-23,Dev4,13.00
+API Implementation,2024-12-10,2024-12-23,Dev5,13.00
+API Implementation,2024-12-10,2024-12-23,Dev7,13.00
+Documentation,2025-01-08,2025-01-08,Dev11,0.00
+Integration Testing,2024-12-23,2024-12-30,Dev3,7.00
+Integration Testing,2024-12-23,2024-12-30,Dev2,7.00
+User Acceptance Testing,2025-01-08,2025-01-13,Dev2,5.00
+User Acceptance Testing,2025-01-08,2025-01-13,Dev3,5.00
+User Acceptance Testing,2025-01-02,2025-01-13,Dev5,11.00
