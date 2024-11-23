@@ -26,6 +26,7 @@ func main() {
 
 	// Handle CSV uploads
 	r.POST("/upload", func(c *gin.Context) {
+		gin.SetMode(gin.ReleaseMode)
 		// Get files from form
 		rolesFile, err := c.FormFile("roles.csv")
 		if err != nil {
@@ -123,7 +124,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	r.Run(port)
+	r.Run(":" + port)
 }
 
 type TimelineItem struct {

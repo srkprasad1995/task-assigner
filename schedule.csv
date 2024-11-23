@@ -42,8 +42,8 @@ Search Functionality,2024-12-24,2025-01-01,Dev10,8.00
 Search Functionality,2024-12-30,2025-01-01,Dev2,2.00
 Email Service_QA,2025-01-01,2025-01-02,Dev2,1.00
 Load Balancing,2025-01-15,2025-01-24,Dev6,9.00
-User Interface Design,2024-11-23,2024-12-02,Dev8,9.00
 User Interface Design,2024-11-23,2024-12-02,Dev6,9.00
+User Interface Design,2024-11-23,2024-12-02,Dev8,9.00
 Security Audit,2024-12-31,2025-01-23,Dev7,23.00
 Analytics Integration,2024-11-23,2024-12-02,Dev10,9.00
 Analytics Integration,2024-12-02,2024-12-02,Dev1,0.00
@@ -60,8 +60,8 @@ API Implementation,2024-12-10,2024-12-23,Dev4,13.00
 API Implementation,2024-12-10,2024-12-23,Dev5,13.00
 API Implementation,2024-12-10,2024-12-23,Dev7,13.00
 Documentation,2025-01-08,2025-01-08,Dev11,0.00
-Integration Testing,2024-12-23,2024-12-30,Dev3,7.00
 Integration Testing,2024-12-23,2024-12-30,Dev2,7.00
+Integration Testing,2024-12-23,2024-12-30,Dev3,7.00
+User Acceptance Testing,2025-01-02,2025-01-13,Dev5,11.00
 User Acceptance Testing,2025-01-08,2025-01-13,Dev2,5.00
 User Acceptance Testing,2025-01-08,2025-01-13,Dev3,5.00
-User Acceptance Testing,2025-01-02,2025-01-13,Dev5,11.00
