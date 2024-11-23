@@ -20,7 +20,7 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 
 	// Home page
-	r.GET("/", func(c *gin.Context) {
+	r.GET("/index", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
 
