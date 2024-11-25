@@ -1,10 +1,14 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -205,4 +209,169 @@ func detectCycle(task *Task, visited, recStack map[string]bool, tasks []*Task) b
 
 	recStack[task.Name] = false
 	return false
+}
+
+func loadOncalls(filename string) ([]OnCall, error) {
+	var oncalls []OnCall
+	records, err := readCSV(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, record := range records[1:] { // Skip header
+		startTime, _ := time.Parse("2006-01-02", record[1])
+		endTime, _ := time.Parse("2006-01-02", record[2])
+		oncalls = append(oncalls, OnCall{
+			DevName:   record[0],
+			StartTime: startTime,
+			EndTime:   endTime,
+		})
+	}
+	return oncalls, nil
+}
+
+func loadLeaves(filename string) ([]Leave, error) {
+	var leaves []Leave
+	records, err := readCSV(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, record := range records[1:] { // Skip header
+		startTime, _ := time.Parse("2006-01-02", record[1])
+		endTime, _ := time.Parse("2006-01-02", record[2])
+		leaves = append(leaves, Leave{
+			DevName:   record[0],
+			StartTime: startTime,
+			EndTime:   endTime,
+		})
+	}
+	return leaves, nil
+}
+
+func LoadFromCSV(rolesFile, tasksFile, devsFile string) ([]*Task, []*Developer, map[string]*Role, error) {
+	// Load Roles
+	roles := make(map[string]*Role)
+	if roleRecords, err := readCSV(rolesFile); err == nil {
+		for _, record := range roleRecords[1:] { // Skip header
+			availability, _ := strconv.ParseFloat(record[1], 64)
+			roles[record[0]] = &Role{
+				Name:                record[0],
+				AvailabilityPercent: availability,
+			}
+		}
+	} else {
+		return nil, nil, nil, fmt.Errorf("error reading roles: %v", err)
+	}
+
+	// Load Tasks
+	var tasks []*Task
+	if taskRecords, err := readCSV(tasksFile); err == nil {
+		for _, record := range taskRecords[1:] { // Skip header
+			priority, _ := strconv.Atoi(record[2])
+			effort, _ := strconv.ParseFloat(record[3], 64)
+			parallel, _ := strconv.Atoi(record[4])
+			dependencies := strings.Split(record[5], ",")
+			if record[5] == "" {
+				dependencies = []string{}
+			}
+
+			// Parse FE and QA required flags
+			needsFE := false
+			needsQA := false
+			if len(record) > 6 {
+				needsFE = record[6] == "true"
+			}
+			if len(record) > 7 {
+				needsQA = record[7] == "true"
+			}
+
+			// Create main task
+			taskName := record[0]
+			mainTask := &Task{
+				Name:           taskName,
+				TaskType:       record[1],
+				Priority:       priority,
+				ParallelFactor: parallel,
+				Dependencies:   dependencies,
+				IsCompleted:    false,
+			}
+
+			// Increase effort by (10*parallelFactor + 40)%
+			effortIncrease := 1.0 + float64(10*parallel+40)/100.0
+			mainTask.Effort = math.Round(effort * effortIncrease)
+
+			tasks = append(tasks, mainTask)
+
+			// Add Frontend task if flag is true
+			var feTaskName string
+			if needsFE {
+				feTaskName = taskName + "_Frontend"
+				feTask := &Task{
+					Name:           feTaskName,
+					TaskType:       "Frontend",
+					Priority:       priority,
+					Effort:         math.Round(effort * 0.25 * effortIncrease),
+					ParallelFactor: 1,
+					Dependencies:   []string{taskName},
+					IsCompleted:    false,
+				}
+				tasks = append(tasks, feTask)
+			}
+
+			// Add QA task if both flags are true
+			if needsQA {
+				qaTaskName := taskName + "_QA"
+				dependencies := []string{taskName}
+				if needsFE {
+					dependencies = append(dependencies, feTaskName)
+				}
+				qaTask := &Task{
+					Name:           qaTaskName,
+					TaskType:       "QA",
+					Priority:       priority,
+					Effort:         math.Round(effort * 0.25 * effortIncrease),
+					ParallelFactor: 1,
+					Dependencies:   dependencies,
+					IsCompleted:    false,
+				}
+				tasks = append(tasks, qaTask)
+			}
+		}
+	} else {
+		return nil, nil, nil, fmt.Errorf("error reading tasks: %v", err)
+	}
+
+	// Load Developers
+	var developers []*Developer
+	if devRecords, err := readCSV(devsFile); err == nil {
+		for _, record := range devRecords[1:] { // Skip header
+			taskTypes := strings.Split(record[2], ",")
+			developers = append(developers, &Developer{
+				Name:      record[0],
+				Role:      record[1],
+				TaskTypes: taskTypes,
+			})
+		}
+	} else {
+		return nil, nil, nil, fmt.Errorf("error reading developers: %v", err)
+	}
+
+	return tasks, developers, roles, nil
+}
+
+func readCSV(filename string) ([][]string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return records, nil
 }
